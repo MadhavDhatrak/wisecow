@@ -1,0 +1,42 @@
+name: github workflow for wisecow app
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+
+      - name: log to docker
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: build the image
+        run: |
+          docker build -t wisecow-app .
+
+      - name: tag the image
+        run: |
+          docker tag wisecow-app madhavdhatrak/wisecow:latest
+          docker tag wisecow-app madhavdhatrak/wisecow:${{ github.sha }}
+
+      - name: push the image to docker hub
+        run: |
+          docker push madhavdhatrak/wisecow:latest
+          docker push madhavdhatrak/wisecow:${{ github.sha }}
+
+      - name: update kubernetes deployment
+        run: |
+          sed -i "s|image: madhavdhatrak/wisecow:.*|image: madhavdhatrak/wisecow:${{ github.sha }}|g" kubernetes/deployment.yaml
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add kubernetes/deployment.yaml
+          git commit -m "Update deployment image to ${{ github.sha }}"
+          git push origin main
