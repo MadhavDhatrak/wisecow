@@ -16,7 +16,7 @@ spec :
       spec :
          containers :
           - name : wisecow 
-            image : madhavdhatrak/wisecow:latest
+            image : madhavdhatrak/wisecow:3c5b7ad7c1cedd530a1a2fc83be4607fffaaa420
             ports :
               - containerPort : 4499
              
