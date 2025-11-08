@@ -9,6 +9,7 @@
 - [Screenshots](#screenshots)
 - [CI/CD Pipeline](#cicd-pipeline)
 - [ArgoCD Setup](#argocd-setup)
+- [KubeArmor Zero-Trust Policy](#kubearmor-zero-trust-policy)
 - [Project Structure](#project-structure)
 - [Verify Deployment](#verify-deployment)
 
@@ -108,6 +109,50 @@ kubectl apply -f argocd/application.yaml
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 ```
 
+## KubeArmor Zero-Trust Policy
+
+### Overview
+
+A zero-trust security policy has been implemented for the Wisecow workload using KubeArmor. The policy enforces strict controls over:
+- **File Access**: Blocks access to sensitive system files (`/etc/passwd`, `/etc/shadow`, `/etc/hosts`)
+- **Process Execution**: Blocks unauthorized package managers (`apt`, `apt-get`)
+- **Network**: Monitors raw protocol usage
+
+### Policy Files
+
+- **Policy Manifest**: `kubernetes/kubearmor-policy.yaml`
+- **Documentation**: Policy rules and zero-trust principles
+
+### ⚠️ Environment Limitation
+
+**Important**: The KubeArmor policy is correctly configured but **enforcement does NOT work** in this environment.
+
+#### Why It Doesn't Work
+
+KubeArmor requires Linux Security Modules (LSM) like AppArmor, SELinux, or BPF-LSM for enforcement. This project runs on:
+- **WSL2** (Windows Subsystem for Linux)
+- **Minikube with Docker driver**
+- **Alternative tried**: Kind cluster
+
+**Root Cause:**
+```bash
+# WSL2 kernel doesn't expose LSM
+$ cat /sys/kernel/security/lsm
+cat: /sys/kernel/security/lsm: No such file or directory
+
+# KubeArmor shows enforcer is disabled
+$ kubectl get pods -n kubearmor -o yaml | grep enforcer
+kubearmor.io/enforcer: none
+```
+
+The WSL2 kernel is a custom Microsoft kernel that doesn't have AppArmor/SELinux compiled in or mounted, making kernel-level enforcement impossible.
+
+#### What Works
+
+✅ **Policy Creation**: Policy YAML is correctly structured  
+✅ **Policy Application**: Successfully applied to cluster   
+❌ **Enforcement**: Cannot block violations (all operations pass).
+
 ## Project Structure
 
 ```
@@ -117,7 +162,8 @@ wisecow/
 ├── kubernetes/
 │   ├── deployment.yaml
 │   ├── service.yaml
-│   └── ingress.yaml
+│   ├── ingress.yaml
+│   └── kubearmor-policy.yaml    # Zero-trust security policy
 ├── argocd/
 │   └── application.yaml
 └── .github/workflows/
