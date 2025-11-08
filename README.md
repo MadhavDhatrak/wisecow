@@ -113,7 +113,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 
 ### Policy Files
 
-- **Policy Manifest**: `kubernetes/kubearmor-policy.yaml`
+- **Policy Manifest**: [kubernetes/kubearmor-policy.yaml](https://github.com/MadhavDhatrak/wisecow/blob/main/kubernetes/kubearmor-policy.yaml)
 ### ⚠️ Environment Limitation
 
 > [!IMPORTANT]
