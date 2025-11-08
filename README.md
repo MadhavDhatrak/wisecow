@@ -125,27 +125,28 @@ A zero-trust security policy has been implemented for the Wisecow workload using
 
 ### ⚠️ Environment Limitation
 
-**Important**: The KubeArmor policy is correctly configured but **enforcement does NOT work** in this environment.
-
-#### Why It Doesn't Work
-
-KubeArmor requires Linux Security Modules (LSM) like AppArmor, SELinux, or BPF-LSM for enforcement. This project runs on:
-- **WSL2** (Windows Subsystem for Linux)
-- **Minikube with Docker driver**
-- **Alternative tried**: Kind cluster
-
-**Root Cause:**
-```bash
-# WSL2 kernel doesn't expose LSM
-$ cat /sys/kernel/security/lsm
-cat: /sys/kernel/security/lsm: No such file or directory
-
-# KubeArmor shows enforcer is disabled
-$ kubectl get pods -n kubearmor -o yaml | grep enforcer
-kubearmor.io/enforcer: none
-```
-
-The WSL2 kernel is a custom Microsoft kernel that doesn't have AppArmor/SELinux compiled in or mounted, making kernel-level enforcement impossible.
+> [!IMPORTANT]
+> The KubeArmor policy is correctly configured but **enforcement does NOT work** in this environment.
+>
+> **Why It Doesn't Work:**
+> 
+> KubeArmor requires Linux Security Modules (LSM) like AppArmor, SELinux, or BPF-LSM for enforcement. This project runs on:
+> - **WSL2** (Windows Subsystem for Linux)
+> - **Minikube with Docker driver**
+> - **Alternative tried**: Kind cluster
+>
+> **Root Cause:**
+> ```bash
+> # WSL2 kernel doesn't expose LSM
+> $ cat /sys/kernel/security/lsm
+> cat: /sys/kernel/security/lsm: No such file or directory
+> 
+> # KubeArmor shows enforcer is disabled
+> $ kubectl get pods -n kubearmor -o yaml | grep enforcer
+> kubearmor.io/enforcer: none
+> ```
+>
+> The WSL2 kernel is a custom Microsoft kernel that doesn't have AppArmor/SELinux compiled in or mounted, making kernel-level enforcement impossible.
 
 #### What Works
 
