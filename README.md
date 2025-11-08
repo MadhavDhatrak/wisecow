@@ -111,18 +111,9 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 
 ## KubeArmor Zero-Trust Policy
 
-### Overview
-
-A zero-trust security policy has been implemented for the Wisecow workload using KubeArmor. The policy enforces strict controls over:
-- **File Access**: Blocks access to sensitive system files (`/etc/passwd`, `/etc/shadow`, `/etc/hosts`)
-- **Process Execution**: Blocks unauthorized package managers (`apt`, `apt-get`)
-- **Network**: Monitors raw protocol usage
-
 ### Policy Files
 
 - **Policy Manifest**: `kubernetes/kubearmor-policy.yaml`
-- **Documentation**: Policy rules and zero-trust principles
-
 ### ⚠️ Environment Limitation
 
 > [!IMPORTANT]
